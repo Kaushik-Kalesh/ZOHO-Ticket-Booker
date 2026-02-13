@@ -10,21 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ScreenDAO {
-    public int getScreenId(String name) {
-        String sql = "SELECT id FROM screens WHERE name = ?";
-        try (Connection conn = DBUtil.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, name);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                return rs.getInt("id");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return -1;
-    }
-
     public Screen getScreen(int id) {
         String sql = "SELECT * FROM screens WHERE id = ?";
         try (Connection conn = DBUtil.getConnection();
@@ -44,22 +29,22 @@ public class ScreenDAO {
         return null;
     }
 
-    public boolean addScreen(String name, int capacity) {
-        String sql = "INSERT INTO screens(name, capacity) VALUES(?, ?)";
+    public void addScreen(String name, int capacity, int price) {
+        String sql = "INSERT INTO screens(name, capacity, price) VALUES(?, ?, ?)";
 
         try (Connection conn = DBUtil.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, name);
             ps.setInt(2, capacity);
+            ps.setInt(3, price);
 
-            return ps.executeUpdate() > 0;
+            ps.executeUpdate();
 
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        return false;
     }
 
     public boolean deleteScreen(int screenId) {

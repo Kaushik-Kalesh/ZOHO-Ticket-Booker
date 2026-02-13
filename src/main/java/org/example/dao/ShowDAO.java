@@ -11,9 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ShowDAO {
-    private ScreenDAO screenDAO = new ScreenDAO();
+    private final ScreenDAO screenDAO = new ScreenDAO();
 
-    public boolean addShow(String title, LocalDateTime startTime, String screenName) {
+    public void addShow(String title, LocalDateTime startTime, int screenId) {
         String sql = "INSERT INTO shows(title, start_time, screen_id) VALUES(?, ?, ?)";
 
         try (Connection conn = DBUtil.getConnection();
@@ -21,15 +21,14 @@ public class ShowDAO {
 
             ps.setString(1, title);
             ps.setObject(2, startTime);
-            ps.setInt(3, screenDAO.getScreenId(screenName));
+            ps.setInt(3, screenId);
 
-            return ps.executeUpdate() > 0;
+            ps.executeUpdate();
 
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        return false;
     }
 
     public boolean deleteShow(int showId) {

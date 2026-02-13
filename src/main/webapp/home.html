@@ -10,12 +10,13 @@
     <div id="shows-container"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script>
+    <script src="helpers.js"></script>
 
     <script id="shows-template" type="text/x-handlebars-template">
         {{#each shows}}
         <div class="show-card">
             <h3>{{title}}</h3>
-            <p>Time: {{startTime}}</p>
+            <p>Time: {{timeDisplay startTime}}</p>
             <p>Screen: {{screen.name}}</p>
             <p>Price: Rs. {{screen.price}}</p>
             <button onclick="">Book</button>
