@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Cinema Admin</title>
+    <style>
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.4);
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal.open {
+            display: flex;
+        }
+        .modal-box {
+            background: white;
+            padding: 16px;
+            border-radius: 6px;
+            min-width: 300px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Admin Panel</h1>
+
+    <div id="app"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script>
+
+    <script id="tpl" type="text/x-handlebars-template">
+
+        <h2>Screens</h2>
+        <button data-open="screenModal">Add Screen</button>
+
+        {{#each screens}}
+        <div>
+            <strong>{{name}}</strong> – ₹{{price}} – Capacity: {{capacity}}
+        </div>
+        {{/each}}
+
+        <hr/>
+
+        <h2>Shows</h2>
+        <button data-open="showModal">Add Show</button>
+
+        {{#each shows}}
+        <div>
+            <strong>{{title}}</strong>
+            <div>{{startTime}}</div>
+            <div>Screen: {{screen.name}}</div>
+        </div>
+        {{/each}}
+
+    </script>
+
+    <!-- Screen Modal -->
+    <div id="screenModal" class="modal">
+        <div class="modal-box">
+            <h3>Add Screen</h3>
+            <button data-close>Close</button>
+        </div>
+    </div>
+
+    <!-- Show Modal -->
+    <div id="showModal" class="modal">
+        <div class="modal-box">
+            <h3>Add Show</h3>
+            <button data-close>Close</button>
+        </div>
+    </div>
+
+    <script>
+        async function load() {
+            const res = await fetch('/TicketBooker-0.1/admin');
+            const data = await res.json();
+
+            if (data.error) {
+                window.location.href = '/TicketBooker-0.1';
+                return;
+            }
+
+            const template = Handlebars.compile(
+                document.getElementById("tpl").innerHTML
+            );
+
+            document.getElementById("app").innerHTML = template(data);
+        }
+
+        document.addEventListener("click", (e) => {
+            const openId = e.target.dataset.open;
+            const close = e.target.dataset.close;
+
+            if (openId) {
+                document.getElementById(openId)?.classList.add("open");
+            }
+
+            if (close) {
+                e.target.closest(".modal")?.classList.remove("open");
+            }
+
+            if (e.target.classList.contains("modal")) {
+                e.target.classList.remove("open");
+            }
+        });
+
+        load();
+    </script>
+
+</body>
+</html>

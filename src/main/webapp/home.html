@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Cinema Shows</title>
+</head>
+<body>
+
+    <h1>Available Shows</h1>
+
+    <div id="shows-container"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script>
+
+    <script id="shows-template" type="text/x-handlebars-template">
+        {{#each shows}}
+        <div class="show-card">
+            <h3>{{title}}</h3>
+            <p>Time: {{startTime}}</p>
+            <p>Screen: {{screen.name}}</p>
+            <p>Price: Rs. {{screen.price}}</p>
+            <button onclick="">Book</button>
+        </div>
+        <hr/>
+        {{/each}}
+    </script>
+
+    <script>
+        async function loadShows() {
+            const res = await fetch('/TicketBooker-0.1/home');
+            const data = await res.json();
+
+            if (data.error) {
+                window.location.href = '/TicketBooker-0.1';
+                return;
+            }
+
+            const source = document.getElementById("shows-template").innerHTML;
+            const template = Handlebars.compile(source);
+
+            document.getElementById("shows-container").innerHTML =
+                template(data);
+        }
+
+        loadShows();
+    </script>
+
+</body>
+</html>
