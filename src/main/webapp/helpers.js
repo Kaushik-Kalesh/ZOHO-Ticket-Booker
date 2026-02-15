@@ -10,13 +10,20 @@ document.addEventListener("click", (e) => {
     }
 });
 
-Handlebars.registerHelper("timeDisplay", (iso) => {
+Handlebars.registerHelper("timeDisplay", iso => {
     if (!iso) return "";
     const d = new Date(iso);
-    const dd = String(d.getDate()).padStart(2, "0");
-    const mm = String(d.getMonth() +1).padStart(2, "0");
-    const yyyy = d.getFullYear();
     const hh = String(d.getHours()).padStart(2, "0");
     const min = String(d.getMinutes()).padStart(2, "0");
-    return `${dd}-${mm}-${yyyy} ${hh}:${min}`;
+    return `${hh}:${min}`;
+});
+
+Handlebars.registerHelper("formatDate", dateStr => {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString("en-IN", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric"
+    });
 });

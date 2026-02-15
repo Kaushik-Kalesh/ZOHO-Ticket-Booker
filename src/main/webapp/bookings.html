@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Bookings</title>
+</head>
+<body>
+
+<div id="navbar-container"></div>
+
+<h1>Your Bookings</h1>
+<div id="app"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script>
+<script src="helpers.js"></script>
+
+<!-- Templates -->
+<script id="appTpl" type="text/x-handlebars-template">
+
+    {{#each bookings}}
+    <p>{{bookingTime}} | {{show.screen.name}} | {{show.title}} | Seats: {{seatsBooked}} </p>
+    {{/each}}
+
+</script>Z
+<!-- End Templates -->
+
+<script src="navbar.js"></script>
+
+<script>
+    const load = async () => {
+        const res = await fetch('/TicketBooker-0.1/book');
+        const data = await res.json();
+
+        if (data.error) {
+            window.location.href = '/TicketBooker-0.1';
+            return;
+        }
+
+        let template = Handlebars.compile(
+            document.getElementById("appTpl").innerHTML
+        );
+
+        document.getElementById("app").innerHTML = template(data);
+    }
+
+    load();
+</script>
+
+</body>
+</html>

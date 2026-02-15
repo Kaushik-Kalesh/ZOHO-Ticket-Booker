@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Wallet</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div id="navbar-container"></div>
+
+<div id="app"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script>
+<script src="helpers.js"></script>
+
+<!-- Templates -->
+<script id="appTpl" type="text/x-handlebars-template">
+
+    <h1>Your Wallet</h1>
+    <b>Balance: </b>
+    <p>{{walletBal}}</p>
+    <button data-open="addBalanceModal">Add Funds</button>
+    <br><br>
+    <b>Loyalty Points: </b>
+    <p>{{loyaltyPts}}</p>
+    <button onclick="redeemPoints()">Redeem Points</button>
+
+</script>
+<!-- End Templates -->
+
+<!-- Modals -->
+<div id="addBalanceModal" class="modal">
+    <div class="modal-box">
+        <h3>Add Wallet Balance</h3>
+        <form id="addBalanceForm">
+            <input type="number" name="amount" placeholder="Amount" required><br><br>
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+</div>
+<!-- End Modals -->
+
+<script src="navbar.js"></script>
+
+<script>
+    const load = async () => {
+        const res = await fetch('/TicketBooker-0.1/wallet');
+        const data = await res.json();
+
+        if (data.error) {
+            window.location.href = '/TicketBooker-0.1';
+            return;
+        }
+
+        let template = Handlebars.compile(
+            document.getElementById("appTpl").innerHTML
+        );
+
+        document.getElementById("app").innerHTML = template(data);
+    }
+
+    load();
+
+    document.getElementById("addBalanceForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const formData = e.target;
+        const payload = {
+            amount: formData.amount.valueAsNumber
+        };
+        const res = await fetch('/TicketBooker-0.1/wallet?type=load', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        window.location.reload();
+    });
+
+    const redeemPoints = async () => {
+        const res = await fetch('/TicketBooker-0.1/wallet?type=redeem', {
+            method: 'POST'
+        });
+
+        window.location.reload();
+    }
+
+</script>
+
+</body>
+</html>

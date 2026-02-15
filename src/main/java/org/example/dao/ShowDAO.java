@@ -47,7 +47,7 @@ public class ShowDAO {
         return false;
     }
 
-    public List<Show> fetchShows() {
+    public List<Show> getAllShows() {
 
         String sql = """
             SELECT sh.id,

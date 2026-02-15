@@ -32,11 +32,8 @@ public class HomeServlet extends HttpServlet {
             return;
         }
 
-        boolean isAdmin = Boolean.TRUE.equals(session.getAttribute("isAdmin"));
-
         Map<String, Object> result = new HashMap<>();
-        result.put("isAdmin", isAdmin);
-        result.put("shows", showDAO.fetchShows());
+        result.put("shows", showDAO.getAllShows());
 
         mapper.writeValue(response.getWriter(), result);
     }

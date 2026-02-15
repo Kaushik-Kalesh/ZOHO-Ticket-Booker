@@ -7,139 +7,140 @@
 </head>
 <body>
 
-    <h1>Admin Panel</h1>
+<h1>Admin Panel</h1>
 
-    <div id="app"></div>
+<div id="app"></div>
 
-    <script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script>
-    <script src="helpers.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script>
+<script src="helpers.js"></script>
 
-    <!-- Templates -->
-    <script id="appTpl" type="text/x-handlebars-template">
+<!-- Templates -->
+<script id="appTpl" type="text/x-handlebars-template">
 
-        <h2>Screens</h2>
-        {{#each screens}}
-        <div>
-            <strong>{{name}}</strong> – ₹{{price}} – Capacity: {{capacity}}
-        </div>
-        {{/each}}
-        <button data-open="screenModal">Add Screen</button>
+    <h2>Screens</h2>
+    {{#each screens}}
+    <div>
+        <strong>{{name}}</strong> – ₹{{price}} – Capacity: {{capacity}}
+    </div>
+    {{/each}}
+    <button data-open="screenModal">Add Screen</button>
 
-        <hr/>
+    <hr/>
 
-        <h2>Shows</h2>
-        {{#each shows}}
-        <div>
-            <strong>{{title}}</strong>
-            <div>{{timeDisplay startTime}}</div>
-            <div>Screen: {{screen.name}}</div>
-        </div>
-        {{/each}}
-        <button data-open="showModal">Add Show</button>
+    <h2>Shows</h2>
+    {{#each shows}}
+    <div>
+        <strong>{{title}}</strong>
+        <div>{{timeDisplay startTime}}</div>
+        <div>Screen: {{screen.name}}</div>
+    </div>
+    {{/each}}
+    <button data-open="showModal">Add Show</button>
 
-    </script>
+</script>
 
-    <script id="showFormTpl" type="text/x-handlebars-template">
-        <form id="addShowForm">
-            <input type="text" name="title" placeholder="Show Title" required>
-            <input type="datetime-local" name="startTime" required>
-            <button type="submit">Add Show</button>
-            <select name="screenId" required>
-                <option value="">Select Screen</option>
-                {{#each screens}}
-                <option value="{{id}}">{{name}}-{{id}}</option>
-                {{/each}}
-            </select>
+<script id="showFormTpl" type="text/x-handlebars-template">
+    <form id="addShowForm">
+        <input type="text" name="title" placeholder="Show Title" required><br><br>
+        <input type="datetime-local" name="startTime" required><br><br>
+        <select name="screenId" required><br><br>
+            <option value="">Select Screen</option>
+            {{#each screens}}
+            <option value="{{id}}">{{name}}</option>
+            {{/each}}
+        </select>
+        <br><br>
+        <button type="submit">Submit</button>
+    </form>
+</script>
+<!-- End Templates -->
+
+<!-- Modals -->
+<div id="screenModal" class="modal">
+    <div class="modal-box">
+        <h3>Add Screen</h3>
+        <form id="addScreenForm">
+            <input type="text" name="name" placeholder="Screen Name" required><br><br>
+            <input type="number" name="capacity" placeholder="Capacity" required><br><br>
+            <input type="number" name="price" placeholder="Ticket Price" required><br><br>
+            <button type="submit">Submit</button>
         </form>
-    </script>
-    <!-- End Templates -->
-
-    <!-- Modals -->
-    <div id="screenModal" class="modal">
-        <div class="modal-box">
-            <h3>Add Screen</h3>
-            <form id="addScreenForm">
-                <input type="text" name="name" placeholder="Screen Name" required>
-                <input type="number" name="capacity" placeholder="Capacity" required>
-                <input type="number" name="price" placeholder="Ticket Price" required>
-                <button type="submit">Add Screen</button>
-            </form>
-        </div>
     </div>
+</div>
 
-    <div id="showModal" class="modal">
-        <div class="modal-box">
-            <h3>Add Show</h3>
-            <div id="showForm"></div>
-        </div>
+<div id="showModal" class="modal">
+    <div class="modal-box">
+        <h3>Add Show</h3>
+        <div id="showForm"></div>
     </div>
-    <!-- End Modals -->
+</div>
+<!-- End Modals -->
 
-    <script>
-        async function load() {
-            const res = await fetch('/TicketBooker-0.1/admin');
-            const data = await res.json();
+<script>
+    async function load() {
+        const res = await fetch('/TicketBooker-0.1/admin');
+        const data = await res.json();
 
-            if (data.error) {
-                window.location.href = '/TicketBooker-0.1';
-                return;
-            }
-
-            let template = Handlebars.compile(
-                document.getElementById("appTpl").innerHTML
-            );
-
-            document.getElementById("app").innerHTML = template(data);
-
-            template = Handlebars.compile(
-                document.getElementById("showFormTpl").innerHTML
-            );
-
-            document.getElementById("showForm").innerHTML = template(data);
+        if (data.error) {
+            window.location.href = '/TicketBooker-0.1';
+            return;
         }
 
-        load();
+        let template = Handlebars.compile(
+            document.getElementById("appTpl").innerHTML
+        );
 
-        document.getElementById("addScreenForm").addEventListener("submit", async (e) => {
+        document.getElementById("app").innerHTML = template(data);
+
+        template = Handlebars.compile(
+            document.getElementById("showFormTpl").innerHTML
+        );
+
+        document.getElementById("showForm").innerHTML = template(data);
+    }
+
+    load();
+
+    document.getElementById("addScreenForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const formData = e.target;
+        const payload = {
+            name: formData.name.value,
+            capacity: formData.capacity.valueAsNumber,
+            price: formData.price.valueAsNumber
+        };
+        const res = await fetch('/TicketBooker-0.1/admin?type=screen', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        window.location.reload();
+    });
+
+    document.addEventListener("submit", async (e) => {
+        if (e.target.id === "addShowForm") {
             e.preventDefault();
 
             const formData = e.target;
             const payload = {
-                name: formData.name.value,
-                capacity: formData.capacity.valueAsNumber,
-                price: formData.price.valueAsNumber
-            };
-            const res = await fetch('/TicketBooker-0.1/admin?type=screen', {
+                title: formData.title.value,
+                startTime: formData.startTime.value,
+                screenId: Number(formData.screenId.value)
+        };
+
+            await fetch('/TicketBooker-0.1/admin?type=show', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
 
             window.location.reload();
-        });
+        }
+    });
 
-        document.addEventListener("submit", async (e) => {
-            if (e.target.id === "addShowForm") {
-                e.preventDefault();
-
-                const formData = e.target;
-                const payload = {
-                    title: formData.title.value,
-                    startTime: formData.startTime.value,
-                    screenId: Number(formData.screenId.value)
-            };
-
-                await fetch('/TicketBooker-0.1/admin?type=show', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                window.location.reload();
-            }
-        });
-
-    </script>
+</script>
 
 </body>
 </html>

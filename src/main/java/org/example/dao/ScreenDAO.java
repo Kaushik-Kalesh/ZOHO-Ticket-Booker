@@ -63,7 +63,7 @@ public class ScreenDAO {
         return false;
     }
 
-    public List<Screen> fetchScreens() {
+    public List<Screen> getAllScreens() {
         String sql = "SELECT * FROM screens";
 
         try (Connection conn = DBUtil.getConnection();

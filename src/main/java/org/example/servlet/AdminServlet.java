@@ -35,8 +35,8 @@ public class AdminServlet extends HttpServlet {
         }
 
         Map<String, Object> result = new HashMap<>();
-        result.put("screens", screenDAO.fetchScreens());
-        result.put("shows", showDAO.fetchShows());
+        result.put("screens", screenDAO.getAllScreens());
+        result.put("shows", showDAO.getAllShows());
 
         mapper.writeValue(response.getWriter(), result);
     }
@@ -45,6 +45,19 @@ public class AdminServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request,
                          HttpServletResponse response)
             throws IOException {
+
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+
+        HttpSession session = request.getSession(false);
+
+        if (session == null || Boolean.FALSE.equals(session.getAttribute("isAdmin"))) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            mapper.writeValue(response.getWriter(),
+                    Map.of("error", "Not authenticated"));
+            return;
+        }
+
         Map<String, Object> payload = mapper.readValue(request.getReader(), Map.class);
         if ("screen".equals(request.getParameter("type"))) {
 
