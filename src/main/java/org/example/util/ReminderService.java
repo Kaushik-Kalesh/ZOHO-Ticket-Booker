@@ -3,7 +3,6 @@ package org.example.util;
 import org.apache.commons.mail.DefaultAuthenticator;
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.MultiPartEmail;
-import org.apache.fontbox.util.BoundingBox;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
@@ -69,7 +68,7 @@ public class ReminderService {
     public void sendEmail(String to, byte[] pdfBytes) throws EmailException {
 
         String myEmail = "kaushikkalesh@gmail.com";
-        String appPassword = "pjqmqfmzbyfptpdu ";
+        String appPassword = "pjqmqfmzbyfptpdu";
 
         MultiPartEmail email = new MultiPartEmail();
 

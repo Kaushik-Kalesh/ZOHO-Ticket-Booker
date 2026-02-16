@@ -42,8 +42,7 @@
                 <td>
                     <button data-open="bookShowModal"
                             data-show-id="{{id}}"
-                            data-screen-id="{{screen.id}}"
-                            data-screen-price="{{screen.price}}">Book</button>
+                            data-screen-id="{{screen.id}}">Book</button>
                 </td>
             </tr>
             {{/each}}
@@ -73,7 +72,6 @@
 <script>
     let selectedShowId = null;
     let selectedScreenId = null;
-    let selectedScreenPrice = null;
 
     const load = async () => {
         try {
@@ -129,7 +127,6 @@
 
             selectedShowId = btn.dataset.showId;
             selectedScreenId = btn.dataset.screenId;
-            selectedScreenPrice = btn.dataset.screenPrice;
     });
 
 
@@ -140,7 +137,6 @@
         const payload = {
             showId: Number(selectedShowId),
             screenId: Number(selectedScreenId),
-            seatPrice: Number(selectedScreenPrice),
             seatQty: formData.seatQty.valueAsNumber
         };
         const res = await fetch('/TicketBooker-0.1/book', {

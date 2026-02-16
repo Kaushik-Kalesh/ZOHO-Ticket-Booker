@@ -16,95 +16,158 @@ public class BookingDAO {
 
     private final int LOYALTY_POINTS_PER_BOOKING = 10;
 
-    public int getAvailableSeats(int screenId, int showId) {
-        String sql1 = "SELECT capacity FROM screens WHERE id = ?";
-        String sql2 = "SELECT seat_qty FROM bookings WHERE screen_id = ? AND show_id = ?";
-        try (Connection conn = DBUtil.getConnection();
-             PreparedStatement ps1 = conn.prepareStatement(sql1);
-             PreparedStatement ps2= conn.prepareStatement(sql2)) {
+    public void addBooking(int userId, int screenId, int showId, int seats) {
 
-            ps1.setInt(1, screenId);
-            ResultSet rs1 = ps1.executeQuery();
-            int capacity = 0;
-            if (rs1.next()) {
-                capacity = rs1.getInt("capacity");
-            }
-
-            ps2.setInt(1, screenId);
-            ps2.setInt(2, showId);
-            ResultSet rs = ps2.executeQuery();
-            int bookedSeats = 0;
-            while (rs.next()) {
-                bookedSeats += rs.getInt("seat_qty");
-            }
-            return capacity - bookedSeats;
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return 0;
-    }
-
-    public void addBooking(int userId, int screenId, int showId, int seats, int cost) {
-        String sql1 = "INSERT INTO bookings (user_id, screen_id, show_id, seat_qty) VALUES (?, ?, ?, ?)";
-        String sql2 = "UPDATE users SET wallet_bal = wallet_bal - ?, loyalty_pts = loyalty_pts + ? WHERE id = ?";
-        try (Connection conn = DBUtil.getConnection();
-             PreparedStatement ps1 = conn.prepareStatement(sql1);
-             PreparedStatement ps2 = conn.prepareStatement(sql2)) {
-            ps1.setInt(1, userId);
-            ps1.setInt(2, screenId);
-            ps1.setInt(3, showId);
-            ps1.setInt(4, seats);
-            ps1.executeUpdate();
-
-            ps2.setInt(1, cost);
-            ps2.setInt(2, LOYALTY_POINTS_PER_BOOKING);
-            ps2.setInt(3, userId);
-            ps2.executeUpdate();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void cancelBooking(int id) {
-        String sql1 = """
-        SELECT 
-            b.user_id, 
-            b.seat_qty, 
-            s.price 
-        FROM bookings b
-        JOIN screens s
-        ON b.screen_id = s.id
-        WHERE b.id = ?
+        String lockScreenSql = """
+        SELECT id FROM screens
+        WHERE id = ?
+        FOR UPDATE
         """;
-        String sql2 = "DELETE FROM bookings WHERE id = ?";
-        String sql3 = "UPDATE users SET wallet_bal = wallet_bal + ?, loyalty_pts = loyalty_pts - ? WHERE id = ?";
 
-        try (Connection conn = DBUtil.getConnection();
-             PreparedStatement ps1 = conn.prepareStatement(sql1);
-             PreparedStatement ps2 = conn.prepareStatement(sql2);
-             PreparedStatement ps3 = conn.prepareStatement(sql3)) {
+        String availabilitySql = """
+        SELECT s.capacity - COALESCE(SUM(b.seat_qty), 0) AS available, s.price
+        FROM screens s
+        LEFT JOIN bookings b
+            ON s.id = b.screen_id AND b.show_id = ?
+        WHERE s.id = ?
+        GROUP BY s.capacity, s.price
+        """;
 
-            ps1.setInt(1, id);
-            ResultSet rs = ps1.executeQuery();
-            int userId = 0;
-            int cost = 0;
-            if (rs.next()) {
-                userId = rs.getInt("user_id");
-                cost = rs.getInt("seat_qty") * rs.getInt("price");
+        String walletSql = """
+        SELECT wallet_bal FROM users
+        WHERE id = ?
+        FOR UPDATE
+        """;
+
+        String insertSql = """
+        INSERT INTO bookings (user_id, screen_id, show_id, seat_qty)
+        VALUES (?, ?, ?, ?)
+        """;
+
+        String updateUserSql = """
+        UPDATE users
+        SET wallet_bal = wallet_bal - ?,
+            loyalty_pts = loyalty_pts + ?
+        WHERE id = ?
+        """;
+
+        try (Connection conn = DBUtil.getConnection()) {
+
+            conn.setAutoCommit(false);
+
+            int price;
+            int available;
+
+            try (PreparedStatement ps = conn.prepareStatement(lockScreenSql)) {
+                ps.setInt(1, screenId);
+                ps.executeQuery();
             }
 
-            ps2.setInt(1, id);
-            ps2.executeUpdate();
+            try (PreparedStatement ps = conn.prepareStatement(availabilitySql)) {
+                ps.setInt(1, showId);
+                ps.setInt(2, screenId);
 
-            ps3.setInt(1, cost);
-            ps3.setInt(2, LOYALTY_POINTS_PER_BOOKING);
-            ps3.setInt(3, userId);
-            ps3.executeUpdate();
+                ResultSet rs = ps.executeQuery();
+
+                if (!rs.next())
+                    throw new RuntimeException("Screen not found");
+
+                available = rs.getInt("available");
+                price = rs.getInt("price");
+
+                if (available < seats)
+                    throw new RuntimeException("Not enough seats available");
+            }
+
+            int totalCost = price * seats;
+
+            try (PreparedStatement ps = conn.prepareStatement(walletSql)) {
+                ps.setInt(1, userId);
+                ResultSet rs = ps.executeQuery();
+
+                if (!rs.next())
+                    throw new RuntimeException("User not found");
+
+                if (rs.getInt("wallet_bal") < totalCost)
+                    throw new RuntimeException("Insufficient wallet balance");
+            }
+
+            try (PreparedStatement ps = conn.prepareStatement(updateUserSql)) {
+                ps.setInt(1, totalCost);
+                ps.setInt(2, LOYALTY_POINTS_PER_BOOKING);
+                ps.setInt(3, userId);
+                ps.executeUpdate();
+            }
+
+            try (PreparedStatement ps = conn.prepareStatement(insertSql)) {
+                ps.setInt(1, userId);
+                ps.setInt(2, screenId);
+                ps.setInt(3, showId);
+                ps.setInt(4, seats);
+                ps.executeUpdate();
+            }
+
+            conn.commit();
 
         } catch (Exception e) {
             e.printStackTrace();
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    public void cancelBooking(int bookingId) {
+
+        String selectSql = """
+        SELECT b.user_id, b.seat_qty, s.price
+        FROM bookings b
+        JOIN screens s ON b.screen_id = s.id
+        WHERE b.id = ?
+        FOR UPDATE
+        """;
+
+        String deleteSql = "DELETE FROM bookings WHERE id = ?";
+        String refundSql = """
+        UPDATE users
+        SET wallet_bal = wallet_bal + ?,
+            loyalty_pts = loyalty_pts - ?
+        WHERE id = ?
+        """;
+
+        try (Connection conn = DBUtil.getConnection()) {
+
+            conn.setAutoCommit(false);
+
+            int userId;
+            int refund;
+
+            try (PreparedStatement ps = conn.prepareStatement(selectSql)) {
+                ps.setInt(1, bookingId);
+                ResultSet rs = ps.executeQuery();
+
+                if (!rs.next())
+                    throw new RuntimeException("Booking not found");
+
+                userId = rs.getInt("user_id");
+                refund = rs.getInt("seat_qty") * rs.getInt("price");
+            }
+
+            try (PreparedStatement ps = conn.prepareStatement(deleteSql)) {
+                ps.setInt(1, bookingId);
+                ps.executeUpdate();
+            }
+
+            try (PreparedStatement ps = conn.prepareStatement(refundSql)) {
+                ps.setInt(1, refund);
+                ps.setInt(2, LOYALTY_POINTS_PER_BOOKING);
+                ps.setInt(3, userId);
+                ps.executeUpdate();
+            }
+
+            conn.commit();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e.getMessage());
         }
     }
 

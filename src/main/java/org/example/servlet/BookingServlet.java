@@ -58,31 +58,23 @@ public class BookingServlet extends HttpServlet {
             return;
         }
 
-        Map<String, Object> payload = mapper.readValue(request.getReader(), Map.class);
-        String username = (String) session.getAttribute("user");
-        User user = userDAO.getUser(username);
-        int screenId = (int) payload.get("screenId");
-        int showId = (int) payload.get("showId");
-        int seatPrice = (int) payload.get("seatPrice");
-        int seatQty = (int) payload.get("seatQty");
-        int cost = seatPrice * seatQty;
+        try {
+            Map<String, Object> payload = mapper.readValue(request.getReader(), Map.class);
+            String username = (String) session.getAttribute("user");
+            User user = userDAO.getUser(username);
+            int screenId = (int) payload.get("screenId");
+            int showId = (int) payload.get("showId");
+            int seatQty = (int) payload.get("seatQty");
 
-        if (user.walletBal() < cost) {
+            bookingDAO.addBooking(user.id(), screenId, showId, seatQty);
+        } catch (Exception e) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             mapper.writeValue(response.getWriter(),
-                    Map.of("error", "Insufficient funds"));
-            return;
+                    Map.of("error", e.getMessage()));
         }
-
-        if (bookingDAO.getAvailableSeats(screenId, showId) < seatQty) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            mapper.writeValue(response.getWriter(),
-                    Map.of("error", "Not enough seats available"));
-            return;
-        }
-        bookingDAO.addBooking(user.id(), screenId, showId, seatQty, cost);
     }
 
+    @Override
     public void doDelete(HttpServletRequest request,
                              HttpServletResponse response)
             throws IOException {
@@ -99,6 +91,12 @@ public class BookingServlet extends HttpServlet {
             return;
         }
 
-        bookingDAO.cancelBooking(Integer.parseInt(request.getParameter("bookingId")));
+        try {
+            bookingDAO.cancelBooking(Integer.parseInt(request.getParameter("bookingId")));
+        } catch (Exception e) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            mapper.writeValue(response.getWriter(),
+                    Map.of("error", e.getMessage()));
+        }
     }
 }
