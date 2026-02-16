@@ -14,4 +14,6 @@ dependencies {
     implementation("org.postgresql:postgresql:42.7.9")
     implementation("tools.jackson.core:jackson-databind:3.1.0-rc1")
     implementation("jakarta.servlet:jakarta.servlet-api:6.1.0")
+    implementation("org.apache.pdfbox:pdfbox:3.0.6")
+    implementation("org.apache.commons:commons-email:1.6.0")
 }

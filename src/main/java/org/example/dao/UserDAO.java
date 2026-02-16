@@ -29,14 +29,15 @@ public class UserDAO {
         return false;
     }
 
-    public boolean createUser(String username, String password) {
-        String sql = "INSERT INTO users(username, password) VALUES(?, ?)";
+    public boolean createUser(String username, String email, String password) {
+        String sql = "INSERT INTO users(username, email, password) VALUES(?, ?, ?)";
 
         try (Connection conn = DBUtil.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, username);
-            ps.setString(2, password);
+            ps.setString(2, email);
+            ps.setString(3, password);
 
             return ps.executeUpdate() > 0;
 
@@ -60,6 +61,7 @@ public class UserDAO {
                 return new User(
                         rs.getInt("id"),
                         rs.getString("username"),
+                        rs.getString("email"),
                         rs.getString("password"),
                         rs.getInt("wallet_bal"),
                         rs.getInt("loyalty_pts")

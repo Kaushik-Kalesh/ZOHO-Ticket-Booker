@@ -12,6 +12,7 @@
     <input name="password" type="password" placeholder="Password" required><br><br>
     <button type="submit">Login</button>
 </form>
+<button onclick="window.location.href='/TicketBooker-0.1/register.html'">Register</button>
 
 <p id="message"></p>
 
@@ -19,11 +20,15 @@
     document.getElementById("loginForm").addEventListener("submit", async (e) => {
         e.preventDefault();
 
-        const formData = new FormData(e.target);
+        const formData = e.target;
+        const payload = {
+            username: formData.username.value,
+            password: formData.password.value
+        };
 
         const res = await fetch('/TicketBooker-0.1/login', {
             method: 'POST',
-            body: new URLSearchParams(formData)
+            body: JSON.stringify(payload)
         });
 
         const data = await res.json();
@@ -31,9 +36,6 @@
         if (data.status === "success") {
             const page = data.isAdmin ? "admin.html" : "home.html";
             window.location.href = `/TicketBooker-0.1/${page}`;
-        } else if (data.status === "registered") {
-            document.getElementById("message").innerText =
-                "Registered successfully. Please login.";
         } else {
             document.getElementById("message").innerText =
                 "Invalid credentials.";

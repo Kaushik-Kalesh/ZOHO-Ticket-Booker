@@ -82,4 +82,23 @@ public class BookingServlet extends HttpServlet {
         }
         bookingDAO.addBooking(user.id(), screenId, showId, seatQty, cost);
     }
+
+    public void doDelete(HttpServletRequest request,
+                             HttpServletResponse response)
+            throws IOException {
+
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+
+        HttpSession session = request.getSession(false);
+
+        if (session == null || session.getAttribute("user") == null) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            mapper.writeValue(response.getWriter(),
+                    Map.of("error", "Not authenticated"));
+            return;
+        }
+
+        bookingDAO.cancelBooking(Integer.parseInt(request.getParameter("bookingId")));
+    }
 }

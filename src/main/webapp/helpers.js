@@ -27,3 +27,5 @@ Handlebars.registerHelper("formatDate", dateStr => {
         day: "numeric"
     });
 });
+
+Handlebars.registerHelper("mul", (a, b) => a * b);

@@ -63,9 +63,9 @@ public class WalletServlet extends HttpServlet {
             return;
         }
 
-        Map<String, Object> payload = mapper.readValue(request.getReader(), Map.class);
         String username = (String) session.getAttribute("user");
         if ("load".equals(request.getParameter("type"))) {
+            Map<String, Object> payload = mapper.readValue(request.getReader(), Map.class);
             userDAO.loadWallet(username, (int) payload.get("amount"));
         } else {
             userDAO.redeemLoyaltyPoints(username);

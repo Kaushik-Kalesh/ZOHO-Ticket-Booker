@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register</title>
+</head>
+<body>
+<h1>Register</h1>
+<form id="registerForm">
+    <input name="username" placeholder="Username" required><br><br>
+    <input name="email" type="email" placeholder="Email" required><br><br>
+    <input name="password" type="password" placeholder="Password" required><br><br>
+    <button type="submit">Sign Up</button>
+</form>
+
+<p id="message"></p>
+
+<script>
+    document.getElementById("registerForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const formData = e.target;
+        const payload = {
+            username: formData.username.value,
+            email: formData.email.value,
+            password: formData.password.value
+        };
+
+        const res = await fetch('/TicketBooker-0.1/login?type=new', {
+            method: 'POST',
+            body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+
+        if (data.status === "success") {
+            window.location.href = `/TicketBooker-0.1/home.html`;
+        } else if (data.status === "user_exists") {
+            document.getElementById("message").innerText = "Username already exists. Please choose another.";
+        } else {
+            document.getElementById("message").innerText = "Some error occurred. Please try again.";
+        }
+    });
+</script>
+</body>
+</html>

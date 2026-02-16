@@ -18,10 +18,18 @@
 <script id="appTpl" type="text/x-handlebars-template">
 
     {{#each bookings}}
-    <p>{{bookingTime}} | {{show.screen.name}} | {{show.title}} | Seats: {{seatsBooked}} </p>
+    <div class="bookingCard">
+        <b>Cost: Rs. {{mul show.screen.price seatsBooked}}</b>
+        <p>Time: {{bookingTime}}</p>
+        <p>Screen: {{show.screen.name}}</p>
+        <p>Show: {{show.title}}</p>
+        <p>Seats: {{seatsBooked}}</p>
+        <button onclick="cancelBooking('{{id}}')">Cancel</button>
+        <hr/>
+    </div>
     {{/each}}
 
-</script>Z
+</script>
 <!-- End Templates -->
 
 <script src="navbar.js"></script>
@@ -44,6 +52,21 @@
     }
 
     load();
+
+    const cancelBooking = async (bookingId) => {
+        if (!confirm("Are you sure you want to cancel this booking?")) return;
+
+        const res = await fetch(`/TicketBooker-0.1/book?bookingId=${bookingId}`, {
+            method: "DELETE"
+        });
+
+        if (res.ok) {
+            window.location.reload();
+        }
+
+        const data = await res.json();
+        alert(data.error);
+    }
 </script>
 
 </body>
