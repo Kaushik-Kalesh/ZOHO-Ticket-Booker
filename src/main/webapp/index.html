@@ -23,7 +23,7 @@
     </div>
 </form>
 
-<p id="message"></p>
+<p id="message" style="font-weight: bold; color: red"></p>
 
 <script>
     document.getElementById("loginForm").addEventListener("submit", async (e) => {
@@ -39,6 +39,8 @@
             method: 'POST',
             body: JSON.stringify(payload)
         });
+
+        localStorage.setItem("username", payload.username);
 
         const data = await res.json();
 

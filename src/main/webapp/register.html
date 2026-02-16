@@ -31,6 +31,8 @@
             body: JSON.stringify(payload)
         });
 
+        localStorage.setItem("username", payload.username);
+
         const data = await res.json();
 
         if (data.status === "success") {

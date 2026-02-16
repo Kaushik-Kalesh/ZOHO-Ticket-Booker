@@ -4,11 +4,19 @@ async function loadNavbar() {
 
     document.getElementById("navbar-container").innerHTML = html;
 
-    // Attach logout handler AFTER injection
-    document.getElementById("logout-link").addEventListener("click", e => {
-        e.preventDefault();
-        window.location.href = "/TicketBooker-0.1";
-    });
+    const usernameEl = document.getElementById("username");
+    const storedUsername = localStorage.getItem("username");
+
+    if (storedUsername) {
+        usernameEl.innerText = storedUsername;
+    }
+
+    document.getElementById("logout-link")
+        .addEventListener("click", function (e) {
+            e.preventDefault();
+            localStorage.clear();
+            window.location.href = "/TicketBooker-0.1";
+        });
 }
 
 document.addEventListener("DOMContentLoaded", loadNavbar);
