@@ -11,30 +11,44 @@
 
 <h1>Available Shows</h1>
 
-<div id="shows-container"></div>
+<div id="app"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script>
 <script src="helpers.js"></script>
 
 <!-- Templates -->
-<script id="shows-template" type="text/x-handlebars-template">
+<script id="appTpl" type="text/x-handlebars-template">
     {{#each groupedShows}}
     <h2>{{formatDate date}}</h2>
     <hr/>
 
-    {{#each shows}}
-    <div class="show-card">
-        <h3>{{title}}</h3>
-        <p>Time: {{timeDisplay startTime}}</p>
-        <p>Screen: {{screen.name}}</p>
-        <p>Price: Rs. {{screen.price}}</p>
-        <button data-open="bookShowModal"
-                data-show-id="{{id}}"
-                data-screen-id="{{screen.id}}"
-                data-screen-price="{{screen.price}}">Book</button>
-    </div>
-    <br/>
-    {{/each}}
+    <table>
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Time</th>
+                <th>Screen</th>
+                <th>Price</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each shows}}
+            <tr>
+                <td>{{title}}</td>
+                <td>{{timeDisplay startTime}}</td>
+                <td>{{screen.name}}</td>
+                <td>Rs. {{screen.price}}</td>
+                <td>
+                    <button data-open="bookShowModal"
+                            data-show-id="{{id}}"
+                            data-screen-id="{{screen.id}}"
+                            data-screen-price="{{screen.price}}">Book</button>
+                </td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
 
     <br/>
     {{/each}}
@@ -73,10 +87,10 @@
 
             const grouped = groupShowsByDate(data.shows);
 
-            const source = document.getElementById("shows-template").innerHTML;
+            const source = document.getElementById("appTpl").innerHTML;
             const template = Handlebars.compile(source);
 
-            document.getElementById("shows-container").innerHTML =
+            document.getElementById("app").innerHTML =
                 template({ groupedShows: grouped });
 
         } catch (err) {
@@ -109,7 +123,7 @@
 
     load();
 
-    document.getElementById("shows-container").addEventListener("click", (e) => {
+    document.getElementById("app").addEventListener("click", (e) => {
             const btn = e.target.closest("button[data-open='bookShowModal']");
             if (!btn) return;
 

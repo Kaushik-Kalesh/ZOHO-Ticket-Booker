@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Bookings</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
@@ -17,17 +18,30 @@
 <!-- Templates -->
 <script id="appTpl" type="text/x-handlebars-template">
 
-    {{#each bookings}}
-    <div class="bookingCard">
-        <b>Cost: Rs. {{mul show.screen.price seatsBooked}}</b>
-        <p>Time: {{bookingTime}}</p>
-        <p>Screen: {{show.screen.name}}</p>
-        <p>Show: {{show.title}}</p>
-        <p>Seats: {{seatsBooked}}</p>
-        <button onclick="cancelBooking('{{id}}')">Cancel</button>
-        <hr/>
-    </div>
-    {{/each}}
+    <table>
+        <thead>
+            <tr>
+                <th>Cost</th>
+                <th>Time</th>
+                <th>Screen</th>
+                <th>Show</th>
+                <th>Seats</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each bookings}}
+            <tr>
+                <td>Rs. {{mul show.screen.price seatsBooked}}</td>
+                <td>{{bookingTime}}</td>
+                <td>{{show.screen.name}}</td>
+                <td>{{show.title}}</td>
+                <td>{{seatsBooked}}</td>
+                <td><button onclick="cancelBooking('{{id}}')">Cancel</button></td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
 
 </script>
 <!-- End Templates -->

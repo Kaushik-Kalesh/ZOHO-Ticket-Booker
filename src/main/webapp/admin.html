@@ -18,23 +18,47 @@
 <script id="appTpl" type="text/x-handlebars-template">
 
     <h2>Screens</h2>
-    {{#each screens}}
-    <div>
-        <strong>{{name}}</strong> – ₹{{price}} – Capacity: {{capacity}}
-    </div>
-    {{/each}}
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Capacity</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each screens}}
+            <tr>
+                <td>{{name}}</td>
+                <td>₹{{price}}</td>
+                <td>{{capacity}}</td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
     <button data-open="screenModal">Add Screen</button>
 
     <hr/>
 
     <h2>Shows</h2>
-    {{#each shows}}
-    <div>
-        <strong>{{title}}</strong>
-        <div>{{timeDisplay startTime}}</div>
-        <div>Screen: {{screen.name}}</div>
-    </div>
-    {{/each}}
+    <table>
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Start Time</th>
+                <th>Screen</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each shows}}
+            <tr>
+                <td>{{title}}</td>
+                <td>{{timeDisplay startTime}}</td>
+                <td>{{screen.name}}</td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
     <button data-open="showModal">Add Show</button>
 
 </script>

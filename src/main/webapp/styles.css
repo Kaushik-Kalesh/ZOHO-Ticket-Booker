@@ -15,3 +15,20 @@
     border-radius: 6px;
     min-width: 300px;
 }
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+    max-width: 800px;
+    margin: 8px 0 16px;
+    font-size: 14px;
+}
+th, td {
+    padding: 8px 10px;
+    border-bottom: 1px solid #e5e7eb;
+    text-align: left;
+}
+thead th {
+    font-weight: 600;
+    background: #f9fafb;
+}
