@@ -19,7 +19,7 @@
 table {
     border-collapse: collapse;
     width: 100%;
-    max-width: 800px;
+    max-width: 1200px;
     margin: 8px 0 16px;
     font-size: 14px;
 }
@@ -31,4 +31,8 @@ th, td {
 thead th {
     font-weight: 600;
     background: #f9fafb;
+}
+.action-buttons {
+    display: inline-flex;
+    gap: 8px;
 }

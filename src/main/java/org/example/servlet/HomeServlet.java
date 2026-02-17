@@ -33,7 +33,7 @@ public class HomeServlet extends HttpServlet {
         }
 
         Map<String, Object> result = new HashMap<>();
-        result.put("shows", showDAO.getAllShows());
+        result.put("shows", showDAO.getShows(request.getParameter("title")));
 
         mapper.writeValue(response.getWriter(), result);
     }

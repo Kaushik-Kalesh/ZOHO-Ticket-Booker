@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Movies</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div id="navbar-container"></div>
+
+<h1>Recommended Movies</h1>
+
+<div id="app"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script>
+<script src="helpers.js"></script>
+
+<!-- Templates -->
+<script id="appTpl" type="text/x-handlebars-template">
+    <table>
+        <thead>
+        <tr>
+            <th>Title</th>
+            <th>Director</th>
+            <th>Lead</th>
+            <th>Genre</th>
+            <th>Release Date</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        {{#each movies}}
+        <tr>
+            <td>{{title}}</td>
+            <td>{{director}}</td>
+            <td>{{lead}}</td>
+            <td>{{genre}}</td>
+            <td>{{releaseDate}}</td>
+            <td>
+                <div class="action-buttons">
+                    <button>Like</button>
+                    <button onclick="window.location.href=`/TicketBooker-0.1/home.html?title=${encodeURIComponent('{{title}}')}`"
+                        >View Shows</button>
+                </div>
+            </td>
+        </tr>
+        {{/each}}
+        </tbody>
+    </table>
+
+    <br/>
+</script>
+<!-- End Templates -->
+
+<script src="navbar.js"></script>
+
+<script>
+    const load = async () => {
+        try {
+            const res = await fetch('/TicketBooker-0.1/movies');
+            const data = await res.json();
+
+            if (data.error) {
+                window.location.href = '/TicketBooker-0.1';
+                return;
+            }
+
+            const source = document.getElementById("appTpl").innerHTML;
+            const template = Handlebars.compile(source);
+
+            document.getElementById("app").innerHTML = template(data);
+
+        } catch (err) {
+            console.error("Failed to load shows:", err);
+        }
+    }
+
+    load();
+</script>
+
+</body>
+</html>

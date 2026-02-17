@@ -36,7 +36,7 @@ public class AdminServlet extends HttpServlet {
 
         Map<String, Object> result = new HashMap<>();
         result.put("screens", screenDAO.getAllScreens());
-        result.put("shows", showDAO.getAllShows());
+        result.put("shows", showDAO.getShows(""));
 
         mapper.writeValue(response.getWriter(), result);
     }

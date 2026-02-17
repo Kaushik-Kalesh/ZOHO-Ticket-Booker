@@ -51,19 +51,19 @@ public class BookingDAO {
         WHERE id = ?
         """;
 
-        try (Connection conn = DBUtil.getConnection()) {
+        try (var conn = DBUtil.getConnection()) {
 
             conn.setAutoCommit(false);
 
             int price;
             int available;
 
-            try (PreparedStatement ps = conn.prepareStatement(lockScreenSql)) {
+            try (var ps = conn.prepareStatement(lockScreenSql)) {
                 ps.setInt(1, screenId);
                 ps.executeQuery();
             }
 
-            try (PreparedStatement ps = conn.prepareStatement(availabilitySql)) {
+            try (var ps = conn.prepareStatement(availabilitySql)) {
                 ps.setInt(1, showId);
                 ps.setInt(2, screenId);
 
@@ -81,7 +81,7 @@ public class BookingDAO {
 
             int totalCost = price * seats;
 
-            try (PreparedStatement ps = conn.prepareStatement(walletSql)) {
+            try (var ps = conn.prepareStatement(walletSql)) {
                 ps.setInt(1, userId);
                 ResultSet rs = ps.executeQuery();
 
@@ -92,14 +92,14 @@ public class BookingDAO {
                     throw new RuntimeException("Insufficient wallet balance");
             }
 
-            try (PreparedStatement ps = conn.prepareStatement(updateUserSql)) {
+            try (var ps = conn.prepareStatement(updateUserSql)) {
                 ps.setInt(1, totalCost);
                 ps.setInt(2, LOYALTY_POINTS_PER_BOOKING);
                 ps.setInt(3, userId);
                 ps.executeUpdate();
             }
 
-            try (PreparedStatement ps = conn.prepareStatement(insertSql)) {
+            try (var ps = conn.prepareStatement(insertSql)) {
                 ps.setInt(1, userId);
                 ps.setInt(2, screenId);
                 ps.setInt(3, showId);
@@ -133,14 +133,14 @@ public class BookingDAO {
         WHERE id = ?
         """;
 
-        try (Connection conn = DBUtil.getConnection()) {
+        try (var conn = DBUtil.getConnection()) {
 
             conn.setAutoCommit(false);
 
             int userId;
             int refund;
 
-            try (PreparedStatement ps = conn.prepareStatement(selectSql)) {
+            try (var ps = conn.prepareStatement(selectSql)) {
                 ps.setInt(1, bookingId);
                 ResultSet rs = ps.executeQuery();
 
@@ -151,12 +151,12 @@ public class BookingDAO {
                 refund = rs.getInt("seat_qty") * rs.getInt("price");
             }
 
-            try (PreparedStatement ps = conn.prepareStatement(deleteSql)) {
+            try (var ps = conn.prepareStatement(deleteSql)) {
                 ps.setInt(1, bookingId);
                 ps.executeUpdate();
             }
 
-            try (PreparedStatement ps = conn.prepareStatement(refundSql)) {
+            try (var ps = conn.prepareStatement(refundSql)) {
                 ps.setInt(1, refund);
                 ps.setInt(2, LOYALTY_POINTS_PER_BOOKING);
                 ps.setInt(3, userId);
@@ -173,7 +173,7 @@ public class BookingDAO {
 
     public void markReminderSent(int bookingId) {
         String sql = "UPDATE bookings SET reminder_sent = TRUE WHERE id = ?";
-        try (Connection conn = DBUtil.getConnection();
+        try (var conn = DBUtil.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, bookingId);
             ps.executeUpdate();
@@ -215,7 +215,7 @@ public class BookingDAO {
 
         List<Booking> bookings = new ArrayList<>();
 
-        try (Connection conn = DBUtil.getConnection();
+        try (var conn = DBUtil.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, username);
@@ -296,7 +296,7 @@ public class BookingDAO {
 
         List<Booking> bookings = new ArrayList<>();
 
-        try (Connection conn = DBUtil.getConnection();
+        try (var conn = DBUtil.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ResultSet rs = ps.executeQuery();

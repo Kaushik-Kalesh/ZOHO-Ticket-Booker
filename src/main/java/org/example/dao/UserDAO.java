@@ -12,7 +12,7 @@ public class UserDAO {
 
         String sql = "SELECT * FROM users WHERE username=? AND password=?";
 
-        try (Connection conn = DBUtil.getConnection();
+        try (var conn = DBUtil.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, username);
@@ -32,7 +32,7 @@ public class UserDAO {
     public boolean createUser(String username, String email, String password) {
         String sql = "INSERT INTO users(username, email, password) VALUES(?, ?, ?)";
 
-        try (Connection conn = DBUtil.getConnection();
+        try (var conn = DBUtil.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, username);
@@ -51,7 +51,7 @@ public class UserDAO {
     public User getUser(String username) {
         String sql = "SELECT * FROM users WHERE username=?";
 
-        try (Connection conn = DBUtil.getConnection();
+        try (var conn = DBUtil.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, username);
@@ -78,7 +78,7 @@ public class UserDAO {
     public void loadWallet(String username, int amount) {
         String sql = "UPDATE users SET wallet_bal = wallet_bal + ? WHERE username=?";
 
-        try (Connection conn = DBUtil.getConnection();
+        try (var conn = DBUtil.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, amount);
@@ -94,7 +94,7 @@ public class UserDAO {
         String sql1 = "SELECT loyalty_pts FROM users WHERE username=?";
         String sql2 = "UPDATE users SET loyalty_pts = 0, wallet_bal = wallet_bal + ? WHERE username=?";
 
-        try (Connection conn = DBUtil.getConnection();
+        try (var conn = DBUtil.getConnection();
              PreparedStatement ps1 = conn.prepareStatement(sql1);
              PreparedStatement ps2 = conn.prepareStatement(sql2)) {
 

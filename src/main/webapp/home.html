@@ -75,7 +75,8 @@
 
     const load = async () => {
         try {
-            const res = await fetch('/TicketBooker-0.1/home');
+            const title = new URLSearchParams(window.location.search).get("title") || "";
+            const res = await fetch(`/TicketBooker-0.1/home?title=${encodeURIComponent(title)}`);
             const data = await res.json();
 
             if (data.error) {

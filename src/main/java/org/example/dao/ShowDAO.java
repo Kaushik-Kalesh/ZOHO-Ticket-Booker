@@ -1,5 +1,6 @@
 package org.example.dao;
 
+import org.example.model.Screen;
 import org.example.model.Show;
 import org.example.util.DBUtil;
 
@@ -16,7 +17,7 @@ public class ShowDAO {
     public void addShow(String title, LocalDateTime startTime, int screenId) {
         String sql = "INSERT INTO shows(title, start_time, screen_id) VALUES(?, ?, ?)";
 
-        try (Connection conn = DBUtil.getConnection();
+        try (var conn = DBUtil.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, title);
@@ -31,46 +32,46 @@ public class ShowDAO {
 
     }
 
-    public boolean deleteShow(int showId) {
-        String sql = "DELETE FROM shows WHERE id = ?";
-
-        try (Connection conn = DBUtil.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setInt(1, showId);
-            return ps.executeUpdate() > 0;
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return false;
-    }
-
-    public List<Show> getAllShows() {
-
+    public List<Show> getShows(String title) {
         String sql = """
-            SELECT sh.id,
-                   sh.title,
-                   sh.start_time,
-                   sh.screen_id
-            FROM shows sh
-            JOIN screens sc ON sh.screen_id = sc.id
-        """;
+        SELECT sh.id,
+               sh.title,
+               sh.start_time,
+               sc.id AS screen_id,
+               sc.name,
+               sc.capacity,
+               sc.price
+        FROM shows sh
+        JOIN screens sc ON sh.screen_id = sc.id
+        """ + (title.isBlank() ? "" : " WHERE sh.title = ?");
 
         List<Show> shows = new ArrayList<>();
 
-        try (Connection conn = DBUtil.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+        try (var conn = DBUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            if (!title.isBlank()) {
+                ps.setString(1, title);
+            }
+
+            ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
+
+                Screen screen = new Screen(
+                        rs.getInt("screen_id"),
+                        rs.getString("name"),
+                        rs.getInt("capacity"),
+                        rs.getInt("price")
+                );
+
                 Show show = new Show(
                         rs.getInt("id"),
                         rs.getString("title"),
                         rs.getTimestamp("start_time").toLocalDateTime(),
-                        screenDAO.getScreen(rs.getInt("screen_id"))
+                        screen
                 );
+
                 shows.add(show);
             }
 
