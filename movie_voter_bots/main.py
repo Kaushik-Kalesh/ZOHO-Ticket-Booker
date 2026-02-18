@@ -38,15 +38,8 @@ def register_bot():
     if "status" not in data or data["status"] != "success":
         raise Exception("Registration failed: " + str(data))
 
-    return data["user_id"]
-
-def vote(user_id, movie_id):
-    payload = {
-        "user_id": user_id,
-        "movie_id": movie_id
-    }
-
-    resp = requests.post(f"{BASE_URL}/vote_movie", json=payload)
+def vote(movie_id):
+    resp = requests.post(f"{BASE_URL}/vote_movie?id={movie_id}", json=payload)
     resp.raise_for_status()
 
 
@@ -58,13 +51,13 @@ def main():
 
     for i in range(NUM_BOTS):
         try:
-            user_id = register_bot()
+            register_bot()
 
             num_votes = random.randint(MIN_VOTES, MAX_VOTES)
             chosen_movies = random.sample(movie_ids, min(num_votes, len(movie_ids)))
 
             for movie_id in chosen_movies:
-                vote(user_id, movie_id)
+                vote(movie_id)
 
             time.sleep(0.1)
 

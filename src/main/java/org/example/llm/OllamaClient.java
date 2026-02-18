@@ -10,7 +10,9 @@ import java.util.Map;
 
 public class OllamaClient {
 
-    public static String generate(String prompt) throws URISyntaxException, IOException {
+    private static final String MODEL = "phi";
+
+    public static InputStream generate(String prompt) throws URISyntaxException, IOException {
 
         URI uri = new URI("http://localhost:11434/api/generate");
         HttpURLConnection conn = (HttpURLConnection) uri.toURL().openConnection();
@@ -18,21 +20,30 @@ public class OllamaClient {
         conn.setRequestMethod("POST");
         conn.setRequestProperty("Content-Type", "application/json");
         conn.setDoOutput(true);
-
         String body = """
         {
-          "model": "phi",
-          "prompt": %s,
-          "stream": false
+         "model": "%s",
+         "format": {
+             "type": "object",
+             "properties": {
+                 "reason_for_choosing_these_specific_movies": {"type": "string"},
+                 "movie_ids": {
+                     "type": "array",
+                     "items": {"type": "number"}
+                 }
+             },
+             "required": ["reason_for_choosing_these_specific_movies", "movie_ids"]
+         },
+         "prompt": %s,
+         "stream": false
         }
-        """.formatted(escapeJson(prompt));
+        """.formatted(MODEL, escapeJson(prompt));
 
         try (OutputStream os = conn.getOutputStream()) {
             os.write(body.getBytes());
         }
 
-        Map<String, Object> response = new ObjectMapper().readValue(conn.getInputStream(), Map.class);
-        return response.get("response").toString();
+        return conn.getInputStream();
     }
 
     private static String escapeJson(String input) {

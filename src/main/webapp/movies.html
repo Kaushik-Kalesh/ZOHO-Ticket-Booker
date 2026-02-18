@@ -9,8 +9,6 @@
 
 <div id="navbar-container"></div>
 
-<h1>Recommended Movies</h1>
-
 <div id="app"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script>
@@ -18,6 +16,7 @@
 
 <!-- Templates -->
 <script id="appTpl" type="text/x-handlebars-template">
+    <h1>Recommended Movies</h1>
     <table>
         <thead>
         <tr>
@@ -30,7 +29,7 @@
         </tr>
         </thead>
         <tbody>
-        {{#each movies}}
+        {{#each recommended_movies}}
         <tr>
             <td>{{title}}</td>
             <td>{{director}}</td>
@@ -39,7 +38,7 @@
             <td>{{releaseDate}}</td>
             <td>
                 <div class="action-buttons">
-                    <button>Like</button>
+                    <button onclick="vote({{id}})">Like</button>
                     <button onclick="window.location.href=`/TicketBooker-0.1/home.html?title=${encodeURIComponent('{{title}}')}`"
                         >View Shows</button>
                 </div>
@@ -48,8 +47,39 @@
         {{/each}}
         </tbody>
     </table>
-
     <br/>
+
+    <h1>Other Movies</h1>
+    <table>
+        <thead>
+        <tr>
+            <th>Title</th>
+            <th>Director</th>
+            <th>Lead</th>
+            <th>Genre</th>
+            <th>Release Date</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        {{#each other_movies}}
+        <tr>
+            <td>{{title}}</td>
+            <td>{{director}}</td>
+            <td>{{lead}}</td>
+            <td>{{genre}}</td>
+            <td>{{releaseDate}}</td>
+            <td>
+                <div class="action-buttons">
+                    <button onclick="vote({{id}})">Like</button>
+                    <button onclick="window.location.href=`/TicketBooker-0.1/home.html?title=${encodeURIComponent('{{title}}')}`"
+                    >View Shows</button>
+                </div>
+            </td>
+        </tr>
+        {{/each}}
+        </tbody>
+    </table>
 </script>
 <!-- End Templates -->
 
@@ -77,6 +107,27 @@
     }
 
     load();
+
+    const vote = async (id) => {
+        try {
+            const res = await fetch(`/TicketBooker-0.1/vote_movie?id=${id}`, {
+                method: 'POST'
+            });
+            const data = await res.json();
+
+            if (data.error) {
+                alert(data.error);
+                return;
+            }
+
+            alert("Vote recorded successfully!");
+            load();
+
+        } catch (err) {
+            console.error("Failed to vote:", err);
+            alert("An error occurred while voting. Please try again.");
+        }
+    }
 </script>
 
 </body>
