@@ -49,4 +49,19 @@ public class MovieDAO {
         }
         return movies;
     }
+
+    public String getMovieTitle(int id) {
+        String sql = "SELECT title FROM movies WHERE id = ?";
+        try (var conn = DBUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getString("title");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }

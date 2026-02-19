@@ -20,7 +20,8 @@ public class MovieVoteServlet extends HttpServlet {
     private static final MovieVoteDAO movieVoteDAO = new MovieVoteDAO();
 
     @Override
-    public void doPost(HttpServletRequest request, HttpServletResponse response)
+    public void doPost(HttpServletRequest request,
+                       HttpServletResponse response)
             throws IOException {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");

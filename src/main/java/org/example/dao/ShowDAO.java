@@ -81,4 +81,51 @@ public class ShowDAO {
 
         return shows;
     }
+
+    public Show getShow(String title, LocalDateTime startTime) {
+        String sql = """
+        
+                SELECT sh.id,
+               sh.title,
+               sh.start_time,
+               sc.id AS screen_id,
+               sc.name,
+               sc.capacity,
+               sc.price
+        FROM shows sh
+        JOIN screens sc ON sh.screen_id = sc.id
+        WHERE sh.title = ? AND sh.start_time = ?
+        """;
+
+        try (var conn = DBUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, title);
+            ps.setObject(2, startTime);
+
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+
+                Screen screen = new Screen(
+                        rs.getInt("screen_id"),
+                        rs.getString("name"),
+                        rs.getInt("capacity"),
+                        rs.getInt("price")
+                );
+
+                return new Show(
+                        rs.getInt("id"),
+                        rs.getString("title"),
+                        rs.getTimestamp("start_time").toLocalDateTime(),
+                        screen
+                );
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
 }

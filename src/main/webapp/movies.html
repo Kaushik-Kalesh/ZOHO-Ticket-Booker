@@ -9,6 +9,7 @@
 
 <div id="navbar-container"></div>
 
+<h1>Movies</h1>
 <div id="app"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script>
@@ -16,7 +17,6 @@
 
 <!-- Templates -->
 <script id="appTpl" type="text/x-handlebars-template">
-    <h1>Recommended Movies</h1>
     <table>
         <thead>
         <tr>
@@ -29,7 +29,7 @@
         </tr>
         </thead>
         <tbody>
-        {{#each recommended_movies}}
+        {{#each movies}}
         <tr>
             <td>{{title}}</td>
             <td>{{director}}</td>
@@ -41,39 +41,6 @@
                     <button onclick="vote({{id}})">Like</button>
                     <button onclick="window.location.href=`/TicketBooker-0.1/home.html?title=${encodeURIComponent('{{title}}')}`"
                         >View Shows</button>
-                </div>
-            </td>
-        </tr>
-        {{/each}}
-        </tbody>
-    </table>
-    <br/>
-
-    <h1>Other Movies</h1>
-    <table>
-        <thead>
-        <tr>
-            <th>Title</th>
-            <th>Director</th>
-            <th>Lead</th>
-            <th>Genre</th>
-            <th>Release Date</th>
-            <th>Actions</th>
-        </tr>
-        </thead>
-        <tbody>
-        {{#each other_movies}}
-        <tr>
-            <td>{{title}}</td>
-            <td>{{director}}</td>
-            <td>{{lead}}</td>
-            <td>{{genre}}</td>
-            <td>{{releaseDate}}</td>
-            <td>
-                <div class="action-buttons">
-                    <button onclick="vote({{id}})">Like</button>
-                    <button onclick="window.location.href=`/TicketBooker-0.1/home.html?title=${encodeURIComponent('{{title}}')}`"
-                    >View Shows</button>
                 </div>
             </td>
         </tr>

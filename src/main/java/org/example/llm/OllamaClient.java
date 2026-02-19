@@ -1,18 +1,21 @@
 package org.example.llm;
 
+import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Map;
 
 public class OllamaClient {
 
-    private static final String MODEL = "phi";
+    private static final String MODEL = "phi3:mini";
+    private static final ObjectMapper mapper = new ObjectMapper();
 
-    public static InputStream generate(String prompt) throws URISyntaxException, IOException {
+    public static InputStream generate(String prompt, String format)
+            throws URISyntaxException, IOException {
 
         URI uri = new URI("http://localhost:11434/api/generate");
         HttpURLConnection conn = (HttpURLConnection) uri.toURL().openConnection();
@@ -20,36 +23,21 @@ public class OllamaClient {
         conn.setRequestMethod("POST");
         conn.setRequestProperty("Content-Type", "application/json");
         conn.setDoOutput(true);
-        String body = """
-        {
-         "model": "%s",
-         "format": {
-             "type": "object",
-             "properties": {
-                 "reason_for_choosing_these_specific_movies": {"type": "string"},
-                 "movie_ids": {
-                     "type": "array",
-                     "items": {"type": "number"}
-                 }
-             },
-             "required": ["reason_for_choosing_these_specific_movies", "movie_ids"]
-         },
-         "prompt": %s,
-         "stream": false
-        }
-        """.formatted(MODEL, escapeJson(prompt));
+
+        JsonNode formatNode = mapper.readTree(format);
+
+        ObjectNode root = mapper.createObjectNode();
+        root.put("model", MODEL);
+        root.set("format", formatNode);
+        root.put("prompt", prompt);
+        root.put("stream", false);
+
+        String body = mapper.writeValueAsString(root);
 
         try (OutputStream os = conn.getOutputStream()) {
             os.write(body.getBytes());
         }
 
         return conn.getInputStream();
-    }
-
-    private static String escapeJson(String input) {
-        return "\"" + input
-                .replace("\\", "\\\\")
-                .replace("\"", "\\\"")
-                .replace("\n", "\\n") + "\"";
     }
 }

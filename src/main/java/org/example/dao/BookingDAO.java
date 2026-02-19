@@ -6,7 +6,6 @@ import org.example.model.Show;
 import org.example.model.User;
 import org.example.util.DBUtil;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;

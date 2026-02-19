@@ -22,7 +22,8 @@ public class WalletServlet extends HttpServlet {
     private final UserDAO userDAO = new UserDAO();
 
     @Override
-    public void doGet(HttpServletRequest request, HttpServletResponse response)
+    public void doGet(HttpServletRequest request,
+                      HttpServletResponse response)
             throws IOException {
 
         response.setContentType("application/json");
